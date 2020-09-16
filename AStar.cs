@@ -5,11 +5,12 @@ using System.Collections.Generic;
 namespace Nastar
 {
     public class AStar 
-    {
-		private const float StraightCost = 1.0f;
-		private const float DiagonalCost = 1.4f;
-		
-		public List<AStarNode> FindPath(SparseMatrix<AStarNode> grid, AStarNode start, AStarNode end, Func<AStarNode, AStarNode, float> heuristic, bool isDiagonal) 
+    {	
+		public List<AStarNode> FindPath(
+			SparseMatrix<AStarNode> grid, 
+			AStarNode start, AStarNode end, 
+			Func<AStarNode, AStarNode, float, float, float> heuristic, 
+			bool isDiagonal, float straightCost, float diagonalCost) 
 		{
 			var result = new List<AStarNode>();
 			var open   = new List<AStarNode>();
@@ -20,7 +21,7 @@ namespace Nastar
 			var closedNodes = new Dictionary<AStarNode, bool>();
 			
 			currentNode.G = 0;
-			currentNode.H = heuristic(start, end);
+			currentNode.H = heuristic(start, end, straightCost, diagonalCost);
 			currentNode.F = start.G + start.H;
 			
 			while (currentNode != end) 
@@ -50,18 +51,18 @@ namespace Nastar
 							continue;
 						}
 	
-						var cost = StraightCost;
+						var cost = straightCost;
 						
 						if (!(currentNode.X == test.X || currentNode.Z == test.Z)) {
 							if (!isDiagonal) {
 								continue;
 							}
 								
-							cost = DiagonalCost;
+							cost = diagonalCost;
 						}
 						
 						var g = currentNode.G + cost;
-						var h = heuristic(test, end);
+						var h = heuristic(test, end, straightCost, diagonalCost);
 						var f = g + h;
 						
 						if (openNodes.ContainsKey(test) || closedNodes.ContainsKey(test)) {
